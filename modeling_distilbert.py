@@ -219,19 +219,8 @@ class MultiHeadSelfAttention(nn.Module):
         v = shape(self.v_lin(value))  # (bs, n_heads, k_length, dim_per_head)
 
         """cyy"""
-        key = k
-        value = v
-        cyy_head_number = key.shape[1]
-        for i in range(cyy_head_number):                
-            cyy_kheadi = key[:,i,:,:]
-            cyy_vheadi = value[:,i,:,:]
-            for j in range(cyy_head_number):
-                cyy_kheadj = key[:,j,:,:]
-                cyy_vheadj = value[:,j,:,:]
-                cyy_k_norm = torch.norm(cyy_kheadi-cyy_kheadj,p=2,dim=-1)
-                cyy_v_norm = torch.norm(cyy_vheadi-cyy_vheadj,p=2,dim=-1)
-                collect["K"][layer_number][i][j] += torch.mean(cyy_k_norm)
-                collect["V"][layer_number][i][j] += torch.mean(cyy_v_norm)
+        collect["K"][layer_number] += torch.sum(k[0],1)
+        collect["V"][layer_number] += torch.sum(v[0],1)
         """cyy"""
 
         q = q / math.sqrt(dim_per_head)  # (bs, n_heads, q_length, dim_per_head)
